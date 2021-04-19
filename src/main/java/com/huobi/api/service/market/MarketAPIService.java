@@ -42,4 +42,6 @@ public interface MarketAPIService {
     ContractLiquidationOrdersResponse getContractLiquidationOrders(String symbol, Integer tradeType, Integer createDate, Integer pageIndex, Integer pageSize);
 
     ContractApiStateResponse getContractApiState(String symbol);//查询系统状态
+
+    SwapMarketTradeResponse getSwapMarketTrade(String contractCode);
 }

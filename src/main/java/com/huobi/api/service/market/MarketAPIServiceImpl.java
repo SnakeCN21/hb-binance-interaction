@@ -2,6 +2,7 @@ package com.huobi.api.service.market;
 
 import com.alibaba.fastjson.JSON;
 import com.huobi.api.constants.HuobiFutureAPIConstants;
+import com.huobi.api.constants.HuobiLinearSwapAPIConstants;
 import com.huobi.api.enums.TimePeriodTypeEnum;
 import com.huobi.api.exception.ApiException;
 import com.huobi.api.response.market.*;
@@ -446,6 +447,27 @@ public class MarketAPIServiceImpl implements MarketAPIService {
         } catch (Exception e) {
             body = e.getMessage();
         }
+        throw new ApiException(body);
+    }
+
+    @Override
+    public SwapMarketTradeResponse getSwapMarketTrade(String contractCode) {
+        String body;
+
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("contract_code", contractCode.toUpperCase());
+            body = HbdmHttpClient.getInstance().doGet(url_prex + HuobiLinearSwapAPIConstants.SWAP_MARKET_TRADE, params);
+            //logger.debug("body:{}", body);
+
+            SwapMarketTradeResponse response = JSON.parseObject(body, SwapMarketTradeResponse.class);
+            if ("ok".equalsIgnoreCase(response.getStatus())) {
+                return response;
+            }
+        } catch (Exception e) {
+            throw new ApiException(e);
+        }
+
         throw new ApiException(body);
     }
 }
