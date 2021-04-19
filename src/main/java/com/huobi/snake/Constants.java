@@ -52,7 +52,7 @@ public class Constants {
             hashCode = -hashCode;
         }
 
-        // 5.算法处理: 0-代表前面补充0; 10-代表长度为10; d-代表参数为正数型
+        // 5.算法处理: 0-代表前面补充0; 10-代表长度为10; d-代表参数为整数型
         //String uuid = machineId + dayTime + String.format("%010d", hashCode);
         String uuid = dayTime + String.format("%010d", hashCode);
 
@@ -75,7 +75,7 @@ public class Constants {
 
         //System.out.println(cons.getPropValues("database"));
         //System.out.println(cons.get16UUID());
-        System.out.println(cons.getDateTime());
+        //System.out.println(cons.getDateTime());
     }
 
 }

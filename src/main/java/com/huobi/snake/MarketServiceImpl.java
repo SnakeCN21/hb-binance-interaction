@@ -44,8 +44,9 @@ public class MarketServiceImpl {
     * 将获得的数据进行组装，并插入到数据库表中
     * input: contractType - 合约标识
     * input: price - 合约对应的价格
+    * input: time - 获取价格的时间
      */
-    private static void insertLatestPriceTbl(String contractType, String price) {
+    private static void insertLatestPriceTbl(String contractType, String price, String time) {
         try {
             if (conn == null || !conn.isValid(1000)) {
                 connectedToDB();
@@ -55,7 +56,7 @@ public class MarketServiceImpl {
                 stmt = conn.createStatement();
             }
 
-            String sql = String.format(insertLatestPriceTbl, LATEST_PRICE_TBL, cons.get16UUID(), contractType, Double.parseDouble(price), cons.getDateTime());
+            String sql = String.format(insertLatestPriceTbl, LATEST_PRICE_TBL, cons.get16UUID(), contractType, Double.parseDouble(price), time);
             stmt.executeUpdate(sql);
 
             // 完成后关闭
@@ -112,13 +113,13 @@ public class MarketServiceImpl {
     * 主控制器，每隔1秒依次调用 getMarketTrade()，分别获取 BTC_CW 和 BTC_NW 的最新合约价格
      */
     private static void latestPriceImpl() {
-        logger.debug("MarketServiceImpl.latestPriceImpl() 开始执行....");
-
         MarketAPIServiceImpl huobiAPIService = new MarketAPIServiceImpl();
         int i = 0;
 
         try {
             while (true) {
+                String time = cons.getDateTime();
+
                 getMarketTrade(huobiAPIService, BTC_CW);
                 getMarketTrade(huobiAPIService, BTC_NW);
 
@@ -143,13 +144,20 @@ public class MarketServiceImpl {
                 }
 
                 TimeUnit.SECONDS.sleep(Integer.parseInt(sleep));
+
+//                if (i == 6) {
+//                    throw new NullPointerException();
+//                }
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ParseException e) {
             e.printStackTrace();
         } finally {
-            logger.debug("MarketServiceImpl.latestPriceImpl() 执行终止.");
+            logger.debug("MarketServiceImpl.latestPriceImpl() 执行终止....");
+            logger.debug("MarketServiceImpl.latestPriceImpl() 重新执行....");
+
+            latestPriceImpl();
         }
     }
 
@@ -160,7 +168,6 @@ public class MarketServiceImpl {
      */
     private static void getMarketTrade(MarketAPIServiceImpl huobiAPIService, String contractType) throws ParseException {
         MarketTradeResponse result = huobiAPIService.getMarketTrade(contractType);
-        //logger.debug("获取市场最近成交记录：{}", JSON.toJSONString(result));
 
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(JSON.toJSONString(result));
@@ -170,10 +177,15 @@ public class MarketServiceImpl {
         String jPrice = (String)jAZero.get("price");
 
         //System.out.println(jPrice);
-        insertLatestPriceTbl(contractType, jPrice);
+
+        String time = cons.getDateTime();
+
+        insertLatestPriceTbl(contractType, jPrice, time);
     }
 
     public static void main(String args[]){
+        logger.debug("MarketServiceImpl.latestPriceImpl() 开始执行....");
+
         latestPriceImpl();
     }
 
