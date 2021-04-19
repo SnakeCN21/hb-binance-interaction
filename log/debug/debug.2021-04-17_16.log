@@ -1,0 +1,21 @@
+2021-04-17 16:19:52.328 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:109] - MarketServiceImpl.latestPriceImpl() 开始执行....
+2021-04-17 16:19:55.044 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:122] - 已记录 %d 条数据.
+2021-04-17 16:19:57.495 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:122] - 已记录 %d 条数据.
+2021-04-17 16:19:59.915 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:122] - 已记录 %d 条数据.
+2021-04-17 16:20:49.899 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:109] - MarketServiceImpl.latestPriceImpl() 开始执行....
+2021-04-17 16:20:52.139 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:122] - 已记录 2 条数据.
+2021-04-17 16:20:54.155 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:122] - 已记录 4 条数据.
+2021-04-17 16:20:56.599 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:122] - 已记录 6 条数据.
+2021-04-17 16:24:31.202 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:109] - MarketServiceImpl.latestPriceImpl() 开始执行....
+2021-04-17 16:24:33.529 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 2 条数据.
+2021-04-17 16:24:36.099 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 4 条数据.
+2021-04-17 16:24:38.529 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 6 条数据.
+2021-04-17 16:24:54.217 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:109] - MarketServiceImpl.latestPriceImpl() 开始执行....
+2021-04-17 16:25:05.905 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 10 条数据.
+2021-04-17 16:25:16.771 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 20 条数据.
+2021-04-17 16:25:27.198 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 30 条数据.
+2021-04-17 16:25:37.613 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 40 条数据.
+2021-04-17 16:25:48.423 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 50 条数据.
+2021-04-17 16:26:43.461 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:109] - MarketServiceImpl.latestPriceImpl() 开始执行....
+2021-04-17 16:26:55.469 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 10 条数据.
+2021-04-17 16:27:06.794 [DEBUG] [main] [com.huobi.snake.MarketServiceImpl.latestPriceImpl:124] - 已记录 20 条数据.
