@@ -110,7 +110,7 @@ public class MarketAPITest implements BaseTest {
             e.printStackTrace();
         }
 
-//        MarketTradeResponse result =
+//        BNMarketTradeResponse result =
 //                huobiAPIService.getMarketTrade("btc_cw");
 //        logger.debug("获取市场最近成交记录：{}", JSON.toJSONString(result));
     }
