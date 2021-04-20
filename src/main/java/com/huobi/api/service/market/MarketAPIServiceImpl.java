@@ -450,6 +450,12 @@ public class MarketAPIServiceImpl implements MarketAPIService {
         throw new ApiException(body);
     }
 
+    /**
+     * 在USDT本位永续合约中, 根据合约标识获取最新价格
+     * 
+     * @param contractCode - 合约标识
+     * @return SwapMarketTradeResponse - 已经组装好的对象
+     */
     @Override
     public SwapMarketTradeResponse getSwapMarketTrade(String contractCode) {
         String body;
@@ -470,4 +476,5 @@ public class MarketAPIServiceImpl implements MarketAPIService {
 
         throw new ApiException(body);
     }
+
 }

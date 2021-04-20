@@ -43,5 +43,5 @@ public interface MarketAPIService {
 
     ContractApiStateResponse getContractApiState(String symbol);//查询系统状态
 
-    SwapMarketTradeResponse getSwapMarketTrade(String contractCode);
+    SwapMarketTradeResponse getSwapMarketTrade(String contractCode); // 根据合约标识获取最新价格
 }

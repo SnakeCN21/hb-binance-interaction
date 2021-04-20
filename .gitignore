@@ -1,6 +1,8 @@
 *.log
 *.class
-.idea/
-target/
-log/
-out/
+hb-binance-interaction.iml
+.idea/*
+target/*
+log/*
+out/*
+
