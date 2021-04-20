@@ -20,11 +20,12 @@ USE `hbdb`;
 -- 导出  表 hbdb.bnb_latest_price_tbl 结构
 CREATE TABLE IF NOT EXISTS `bnb_latest_price_tbl` (
   `uuid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `contract_type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `source` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `contract_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `price` double NOT NULL,
   `time` datetime NOT NULL DEFAULT '1000-10-10 10:10:10',
   PRIMARY KEY (`uuid`),
-  KEY `index_1` (`contract_type`,`time`) USING BTREE
+  KEY `idx_price_time` (`price`,`time`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
@@ -32,11 +33,12 @@ CREATE TABLE IF NOT EXISTS `bnb_latest_price_tbl` (
 -- 导出  表 hbdb.btc_latest_price_tbl 结构
 CREATE TABLE IF NOT EXISTS `btc_latest_price_tbl` (
   `uuid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `contract_type` varchar(32) NOT NULL,
+  `source` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `contract_type` varchar(50) NOT NULL,
   `price` double NOT NULL,
   `time` datetime NOT NULL DEFAULT '1000-10-10 10:10:10',
   PRIMARY KEY (`uuid`),
-  KEY `index_1` (`contract_type`,`time`)
+  KEY `idx_price_time` (`price`,`time`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。

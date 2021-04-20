@@ -32,10 +32,10 @@ public class BNBLatestPriceServiceImpl implements LatestPriceService {
     private static Statement stmt = null;
 
     private static final String BNB_USDT = "BNB-USDT"; // BNB/USDT永续
-    private static final String HB = "HB"; // BNB/USDT永续
+    private static final String HB_BNB_USDT = "BNB/USDT永续"; // BNB/USDT永续
 
     private static final String TBL_NAME = "bnb_latest_price_tbl";
-    private static String insertBNBLatestPriceTbl = "INSERT INTO %s (uuid, contract_type, price, time) VALUES ('%s', '%s', %f, '%s');";
+    private static String insertBNBLatestPriceTbl = "INSERT INTO %s (uuid, source, contract_type, price, time) VALUES ('%s', '%s', '%s', %f, '%s');";
 
     /*
      * 主控制器，每隔一段时间依次调用 getMarketTrade()，分别获取 BTC_CW 和 BTC_NW 的最新合约价格
@@ -107,7 +107,7 @@ public class BNBLatestPriceServiceImpl implements LatestPriceService {
 
             String time = cons.getDateTime();
 
-            insertLatestPriceTbl(TBL_NAME, HB, jPrice, time);
+            insertLatestPriceTbl(HB_BNB_USDT, jPrice, time);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -120,7 +120,7 @@ public class BNBLatestPriceServiceImpl implements LatestPriceService {
      * input: time - 获取价格的时间
      */
     @Override
-    public void insertLatestPriceTbl(String tblName, String contract_type, String price, String time) {
+    public void insertLatestPriceTbl(String contract_type, String price, String time) {
         try {
             if (conn == null || !conn.isValid(1000)) {
                 conn = cons.connectedToDB();
@@ -130,7 +130,7 @@ public class BNBLatestPriceServiceImpl implements LatestPriceService {
                 stmt = conn.createStatement();
             }
 
-            String sql = String.format(insertBNBLatestPriceTbl, tblName, cons.get16UUID(), contract_type, Double.parseDouble(price), time);
+            String sql = String.format(insertBNBLatestPriceTbl, TBL_NAME, cons.get16UUID(), cons.HB, contract_type, Double.parseDouble(price), time);
             stmt.executeUpdate(sql);
 
             // 完成后关闭

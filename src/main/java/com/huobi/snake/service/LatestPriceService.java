@@ -23,5 +23,5 @@ public interface LatestPriceService {
      * input: price - 合约对应的价格
      * input: time - 获取价格的时间
      */
-    void insertLatestPriceTbl(String tblName, String source, String price, String time);
+    void insertLatestPriceTbl(String source, String price, String time);
 }

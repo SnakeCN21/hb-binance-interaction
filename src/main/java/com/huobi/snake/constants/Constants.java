@@ -21,6 +21,9 @@ public class Constants {
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String DB_URL = "jdbc:mysql://localhost:3306/%s?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
 
+    public static final String HB = "Huobi";
+    public static final String BA = "Binance";
+
     public static final String SWITCH_OFF = "0";
     public static final String SWITCH_ON = "1";
 

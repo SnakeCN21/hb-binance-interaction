@@ -36,7 +36,7 @@ public class BTCLatestPriceServiceImpl implements LatestPriceService {
 
     private static final String TBL_NAME = "btc_latest_price_tbl";
 
-    private static String insertBTCLatestPriceTbl = "INSERT INTO %s (uuid, contract_type, price, time) VALUES ('%s', '%s', %f, '%s');";
+    private static String insertBTCLatestPriceTbl = "INSERT INTO %s (uuid, source, contract_type, price, time) VALUES ('%s', '%s', '%s', %f, '%s');";
 
     /*
      * 主控制器，每隔一段时间依次调用 getMarketTrade()，分别获取 BTC_CW 和 BTC_NW 的最新合约价格
@@ -108,7 +108,7 @@ public class BTCLatestPriceServiceImpl implements LatestPriceService {
 
             String time = cons.getDateTime();
 
-            insertLatestPriceTbl(TBL_NAME, contractType, jPrice, time);
+            insertLatestPriceTbl(contractType, jPrice, time);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -121,7 +121,7 @@ public class BTCLatestPriceServiceImpl implements LatestPriceService {
      * input: time - 获取价格的时间
      */
     @Override
-    public void insertLatestPriceTbl(String tblName, String contractType, String price, String time) {
+    public void insertLatestPriceTbl(String contractType, String price, String time) {
         try {
             if (conn == null || !conn.isValid(1000)) {
                 conn = cons.connectedToDB();
@@ -131,7 +131,7 @@ public class BTCLatestPriceServiceImpl implements LatestPriceService {
                 stmt = conn.createStatement();
             }
 
-            String sql = String.format(insertBTCLatestPriceTbl, tblName, cons.get16UUID(), contractType, Double.parseDouble(price), time);
+            String sql = String.format(insertBTCLatestPriceTbl, TBL_NAME, cons.get16UUID(), cons.HB, contractType, Double.parseDouble(price), time);
             stmt.executeUpdate(sql);
 
             // 完成后关闭
