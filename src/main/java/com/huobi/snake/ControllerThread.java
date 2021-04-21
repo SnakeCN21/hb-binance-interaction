@@ -9,6 +9,8 @@ import com.huobi.snake.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+
 public class ControllerThread extends Thread {
     private static Logger logger = LoggerFactory.getLogger(ControllerThread.class);
 
@@ -23,7 +25,16 @@ public class ControllerThread extends Thread {
 
     @Override
     public void run() {
-        topService.getLatestPrice();
+        // 设置 LocalDateTime 的精度到秒
+        LocalDateTime now = LocalDateTime.of(
+                LocalDateTime.now().getYear(),
+                LocalDateTime.now().getMonthValue(),
+                LocalDateTime.now().getDayOfMonth(),
+                LocalDateTime.now().getHour(),
+                LocalDateTime.now().getMinute(),
+                LocalDateTime.now().getSecond());
+
+        topService.getLatestPrice(now);
     }
 
     public static void main(String args[]) {

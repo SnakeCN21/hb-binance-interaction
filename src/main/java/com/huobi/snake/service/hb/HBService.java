@@ -3,13 +3,15 @@ package com.huobi.snake.service.hb;
 import com.huobi.api.service.market.MarketAPIServiceImpl;
 import com.huobi.snake.service.TopService;
 
+import java.time.LocalDateTime;
+
 public interface HBService extends TopService {
 
     /**
      * 主控制器，每隔一段时间依次调用 getMarketTrade()，获取最新合约价格
      */
     @Override
-    void getLatestPrice();
+    void getLatestPrice(LocalDateTime startDT);
 
     /**
      * 根据合约标识获取'BTC交割合约'最新价格，并最终写入到数据库中

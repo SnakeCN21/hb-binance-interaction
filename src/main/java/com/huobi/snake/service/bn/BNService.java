@@ -3,12 +3,14 @@ package com.huobi.snake.service.bn;
 import com.huobi.snake.service.TopService;
 import com.huobi.snake.service.market.BNMarketAPIServiceImpl;
 
+import java.time.LocalDateTime;
+
 public interface BNService extends TopService {
     /**
      * 主控制器，每隔一段时间依次调用 getMarketTrade()，获取最新合约价格
      */
     @Override
-    void getLatestPrice();
+    void getLatestPrice(LocalDateTime startDT);
 
     /**
      * 根据合约标识获取最新价格，并最终写入到数据库中

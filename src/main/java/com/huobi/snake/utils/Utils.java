@@ -4,19 +4,22 @@ import com.google.gson.Gson;
 import com.huobi.api.exception.ApiException;
 import com.huobi.api.util.HbdmHttpClient;
 
+import com.huobi.snake.constants.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.ParseException;
+
 import java.text.SimpleDateFormat;
+import java.time.*;
 import java.util.*;
 
 public class Utils {
     private static Logger logger = LoggerFactory.getLogger(Utils.class);
+
+    private static Constants cons = new Constants();
 
     private static final String PROP_FILE_NAME = "config.properties";
 
@@ -38,12 +41,88 @@ public class Utils {
             prop.load(this.getClass().getClassLoader().getResourceAsStream(PROP_FILE_NAME));
 
             value = prop.getProperty(key);
-
-
         } catch (Exception e) {
             System.out.println("Exception: " + e);
         } finally {
             return value;
+        }
+    }
+
+    /**
+     * 传入一个初始时间, 以及一个时间间隔, 计算出下一个时间节点
+     *
+     * @param startDT      - 初始时间
+     * @param timeReminder - 时间间隔
+     * @return LocalDateTime - 下一个时间节点
+     */
+    public LocalDateTime getNextTimeReminder(LocalDateTime startDT, String timeReminder) {
+        if (timeReminder.isEmpty()) {
+            timeReminder = cons.DEFAULT_TIME_REMINDER;
+        }
+
+        timeReminder = timeReminder.toLowerCase();
+
+        String amount = timeReminder.substring(0, timeReminder.length() - 1);
+        String unit = timeReminder.substring(timeReminder.length() - 1);
+
+        if (unit.equals("s")) {
+            return startDT.plusSeconds(Long.parseLong(amount));
+        } else if (unit.equals("m")) {
+            return startDT.plusMinutes(Long.parseLong(amount));
+        } else if (unit.equals("h")) {
+            return startDT.plusHours(Long.parseLong(amount));
+        } else {
+            return startDT.plusMonths(Long.parseLong(amount));
+        }
+    }
+
+    /**
+     * 传入两个LocalDateTime变量, 计算彼此之间的时间差, 如果相等则返回true, 否则false
+     * 由于精度问题，目前误差设置在2秒内
+     *
+     * @param dt1 - LocalDateTime
+     * @param dt2 - LocalDateTime
+     * @return 相等为true, 否则false
+     */
+    public boolean timeCompare(LocalDateTime dt1, LocalDateTime dt2) {
+        Duration duration = Duration.between(dt2, dt1);
+
+        long diff = duration.toMillis() / 1000;
+
+        if (Math.abs(diff) < 2) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 传入两个LocalDateTime变量, 计算彼此之间的时间差, 并按照timeReminder的时间单位格式返回,
+     *
+     * @param dt1          - LocalDateTime
+     * @param dt2          - LocalDateTime
+     * @param timeReminder - 时间间隔
+     * @return String - 返回特定格式的时间差
+     */
+    public String getTimeDifference(LocalDateTime dt1, LocalDateTime dt2, String timeReminder) {
+        if (timeReminder.isEmpty()) {
+            timeReminder = cons.DEFAULT_TIME_REMINDER;
+        }
+
+        timeReminder = timeReminder.toLowerCase();
+
+        String unit = timeReminder.substring(timeReminder.length() - 1);
+
+        Duration duration = Duration.between(dt2, dt1);
+
+        if (unit.equals("s")) {
+            return (duration.toMillis() / 1000) + " 秒";
+        } else if (unit.equals("m")) {
+            return duration.toMinutes() + " 分钟";
+        } else if (unit.equals("h")) {
+            return duration.toHours() + " 小时";
+        } else {
+            return duration.toDays() + " 天";
         }
     }
 

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +27,15 @@ public class BNBLatestPriceServiceImpl implements HBService {
     private static Constants cons = new Constants();
     private static Utils utils = new Utils();
 
+    private static LocalDateTime startDT = null;
+    private static LocalDateTime prevTimeReminder = null;
+    private static LocalDateTime nextTimeReminder = null;
+
+    private static boolean isFirstRun = true;
+
+    private static String timeReminder = "";
+    private static String sleep = "";
+
     private static Connection conn = null;
     private static Statement stmt = null;
 
@@ -39,39 +49,45 @@ public class BNBLatestPriceServiceImpl implements HBService {
      * 主控制器，每隔一段时间依次调用 getMarketTrade()，分别获取 BTC_CW 和 BTC_NW 的最新合约价格
      */
     @Override
-    public void getLatestPrice() {
+    public void getLatestPrice(LocalDateTime startDT) {
         MarketAPIServiceImpl huobiAPIService = new MarketAPIServiceImpl();
-        int i = 0;
+
+        timeReminder = utils.getPropValues("time_reminder");
+        sleep = utils.getPropValues("sleep");
+
+        if (isFirstRun) {
+            this.startDT = startDT;
+            this.prevTimeReminder = startDT;
+            isFirstRun = false;
+        }
+
+        this.nextTimeReminder = utils.getNextTimeReminder(startDT, timeReminder);
 
         try {
             while (true) {
                 getMarketTrade(huobiAPIService, BNB_USDT);
 
-                i++;
+                LocalDateTime now = LocalDateTime.of(
+                        LocalDateTime.now().getYear(),
+                        LocalDateTime.now().getMonthValue(),
+                        LocalDateTime.now().getDayOfMonth(),
+                        LocalDateTime.now().getHour(),
+                        LocalDateTime.now().getMinute(),
+                        LocalDateTime.now().getSecond());
 
-                String recordReminder = utils.getPropValues("record_reminder");
+                if (utils.timeCompare(now, nextTimeReminder)) {
+                    logger.debug(String.format("HB.BTCLatestPriceServiceImpl 已运行 %s.", utils.getTimeDifference(now, this.startDT, timeReminder)));
 
-                // 默认设置为每15分钟进行一次推送提醒
-                if (recordReminder.isEmpty()) {
-                    recordReminder = cons.RECORD_REMINDER;
+                    this.prevTimeReminder = now;
+                    this.nextTimeReminder = utils.getNextTimeReminder(now, timeReminder);
                 }
-
-                if (i % Integer.parseInt(recordReminder) == 0) {
-                    logger.debug(String.format("HB.BNBLatestPriceServiceImpl 已记录 %d 条数据.", i));
-                }
-
-                String sleep = utils.getPropValues("sleep");
 
                 // 默认设置为每1秒进行一次数据采集
                 if (sleep.isEmpty()) {
-                    sleep = cons.SLEEP;
+                    sleep = cons.DEFAULT_SLEEP;
                 }
 
                 TimeUnit.SECONDS.sleep(Integer.parseInt(sleep));
-
-//                if (i == 6) {
-//                    throw new NullPointerException();
-//                }
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -79,7 +95,7 @@ public class BNBLatestPriceServiceImpl implements HBService {
             logger.debug("HB.BNBLatestPriceServiceImpl.getLatestPrice() 执行终止....");
             logger.debug("HB.BNBLatestPriceServiceImpl.getLatestPrice() 重新执行....");
 
-            getLatestPrice();
+            getLatestPrice(this.prevTimeReminder);
         }
     }
 

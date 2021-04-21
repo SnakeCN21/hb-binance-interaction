@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,15 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
 
     private static Constants cons = new Constants();
     private static Utils utils = new Utils();
+
+    private static LocalDateTime startDT = null;
+    private static LocalDateTime prevTimeReminder = null;
+    private static LocalDateTime nextTimeReminder = null;
+
+    private static boolean isFirstRun = true;
+
+    private static String timeReminder = "";
+    private static String sleep = "";
 
     private static Connection conn = null;
     private static Statement stmt = null;
@@ -39,33 +49,43 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
      * 主控制器，每隔一段时间依次调用 getMarketTrade()，获取最新合约价格
      */
     @Override
-    public void getLatestPrice() {
+    public void getLatestPrice(LocalDateTime startDT) {
         BNMarketAPIServiceImpl bnMarketAPIService = new BNMarketAPIServiceImpl();
-        int i = 0;
+
+        timeReminder = utils.getPropValues("time_reminder");
+        sleep = utils.getPropValues("sleep");
+
+        if (isFirstRun) {
+            this.startDT = startDT;
+            this.prevTimeReminder = startDT;
+            isFirstRun = false;
+        }
+
+        this.nextTimeReminder = utils.getNextTimeReminder(startDT, timeReminder);
 
         try {
             while (true) {
                 //getMarketTradeBySymbol(bnMarketAPIService, BNBUSD_PERP);
                 getMarketTradeByPair(bnMarketAPIService, BNBUSD);
 
-                i += 2;
+                LocalDateTime now = LocalDateTime.of(
+                        LocalDateTime.now().getYear(),
+                        LocalDateTime.now().getMonthValue(),
+                        LocalDateTime.now().getDayOfMonth(),
+                        LocalDateTime.now().getHour(),
+                        LocalDateTime.now().getMinute(),
+                        LocalDateTime.now().getSecond());
 
-                String recordReminder = utils.getPropValues("record_reminder");
+                if (utils.timeCompare(now, nextTimeReminder)) {
+                    logger.debug(String.format("HB.BTCLatestPriceServiceImpl 已运行 %s.", utils.getTimeDifference(now, this.startDT, timeReminder)));
 
-                // 默认设置为每15分钟进行一次推送提醒
-                if (recordReminder.isEmpty()) {
-                    recordReminder = cons.RECORD_REMINDER;
+                    this.prevTimeReminder = now;
+                    this.nextTimeReminder = utils.getNextTimeReminder(now, timeReminder);
                 }
-
-                if (i % (Integer.parseInt(recordReminder) * 2) == 0) {
-                    logger.debug(String.format("BN.BNBLatestPriceServiceImpl 已记录 %d 条数据.", i));
-                }
-
-                String sleep = utils.getPropValues("sleep");
 
                 // 默认设置为每1秒进行一次数据采集
                 if (sleep.isEmpty()) {
-                    sleep = cons.SLEEP;
+                    sleep = cons.DEFAULT_SLEEP;
                 }
 
                 TimeUnit.SECONDS.sleep(Integer.parseInt(sleep));
@@ -76,7 +96,7 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
             logger.debug("BN.BNBLatestPriceServiceImpl.getLatestPrice() 执行终止....");
             logger.debug("BN.BNBLatestPriceServiceImpl.getLatestPrice() 重新执行....");
 
-            getLatestPrice();
+            getLatestPrice(this.prevTimeReminder);
         }
 
     }
@@ -115,14 +135,14 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
              */
             List<BNMarketTradeResponse> result = bnMarketAPIService.getMarketTradeByPair(pair);
 
-            for (int i=0; i<result.size(); i++) {
+            for (int i = 0; i < result.size(); i++) {
                 BNMarketTradeResponse marketObj = result.get(i);
 
                 if (marketObj.getSymbol().equals(BNBUSD_PERP)) {
                     insertLatestPriceTbl(BNBUSD_PERP_CONTRACT_TYPE, marketObj.getPrice(), time);
 
                     result.remove(i);
-                    i --;
+                    i--;
                 }
             }
 
@@ -133,8 +153,8 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
             String strB = marketObjB.getSymbol().replace(BNBUSD + "_", "");
 
             DateFormat df = new SimpleDateFormat("yyMMdd", Locale.ENGLISH);
-            Date dateA =  df.parse(strA);
-            Date dateB =  df.parse(strB);
+            Date dateA = df.parse(strA);
+            Date dateB = df.parse(strB);
 
             if (dateA.before(dateB)) {
                 insertLatestPriceTbl(BNBUSD_CONTRACT_TYPE, marketObjA.getPrice(), time);
@@ -195,7 +215,7 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
         logger.debug("BNBLatestPriceServiceImpl.getLatestPrice() 开始执行....");
 
         BNBNBLatestPriceServiceImpl bn = new BNBNBLatestPriceServiceImpl();
-        bn.getLatestPrice();
+        //bn.getLatestPrice();
     }
 
 }
