@@ -1,8 +1,10 @@
 *.log
 *.class
 hb-binance-interaction.iml
+.idea/compiler.xml
 .idea/*
 target/*
 log/*
 out/*
+
 

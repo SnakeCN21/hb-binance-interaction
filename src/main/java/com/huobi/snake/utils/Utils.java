@@ -5,6 +5,7 @@ import com.huobi.api.exception.ApiException;
 import com.huobi.api.util.HbdmHttpClient;
 
 import com.huobi.snake.constants.Constants;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import java.sql.SQLException;
 
 import java.text.SimpleDateFormat;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Utils {
@@ -161,24 +163,37 @@ public class Utils {
      * 组成方式为 YYMMdd(6位) + hashCode(10位)
      */
     public String get16UUID() {
-        // 1.开头两位，标识业务代码或机器代码（可变参数）
-        //String machineId = 11;
+        // 1.中间6整数，标识日期
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
+        String date = now.format(formatter);
 
-        // 2.中间六位整数，标识日期
-        SimpleDateFormat sdf = new SimpleDateFormat("YYMMdd");
-        String dayTime = sdf.format(new Date());
-
-        // 3.生成uuid的hashCode值
+        // 2.生成uuid的hashCode值
         int hashCode = UUID.randomUUID().toString().hashCode();
 
-        // 4.可能为负数
+        // 3.可能为负数
         if (hashCode < 0) {
             hashCode = -hashCode;
         }
 
-        // 5.算法处理: 0-代表前面补充0; 10-代表长度为10; d-代表参数为整数型
-        //String uuid = machineId + dayTime + String.format("%010d", hashCode);
-        String uuid = dayTime + String.format("%010d", hashCode);
+        // 4.算法处理: 0-代表前面补充0; 10-代表长度为10; d-代表参数为整数型
+        String uuid = date + String.format("%010d", hashCode);
+
+        return uuid;
+    }
+
+    public String get24UUID() {
+        // 1.中间6位整数，标识日期
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
+        String date = now.format(formatter);
+
+        // 2.生成16位的数字随机数
+        String random = RandomStringUtils.randomNumeric(16);
+        //String random = RandomStringUtils.random(16, "abcdefgABCDEFG123456789");
+
+        // 3.组装
+        String uuid = date + random;
 
         return uuid;
     }
@@ -217,11 +232,12 @@ public class Utils {
     }
 
     public static void main(String args[]) {
-        //Constants cons = new Constants();
+        //Utils utils = new Utils();
 
-        //System.out.println(cons.getPropValues("database"));
-        //System.out.println(cons.get16UUID());
-        //System.out.println(cons.getDateTime());
+        //System.out.println(utils.getPropValues("database"));
+        //System.out.println(utils.get16UUID());
+        //System.out.println(utils.get24UUID());
+        //System.out.println(utils.getDateTime());
     }
 
 }

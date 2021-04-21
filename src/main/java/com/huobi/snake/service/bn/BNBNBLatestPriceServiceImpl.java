@@ -14,7 +14,9 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -77,7 +79,7 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
                         LocalDateTime.now().getSecond());
 
                 if (utils.timeCompare(now, nextTimeReminder)) {
-                    logger.debug(String.format("HB.BTCLatestPriceServiceImpl 已运行 %s.", utils.getTimeDifference(now, this.startDT, timeReminder)));
+                    logger.debug(String.format("BN.BNBLatestPriceServiceImpl 已运行 %s.", utils.getTimeDifference(now, this.startDT, timeReminder)));
 
                     this.prevTimeReminder = now;
                     this.nextTimeReminder = utils.getNextTimeReminder(now, timeReminder);
@@ -127,42 +129,38 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
      */
     @Override
     public void getMarketTradeByPair(BNMarketAPIServiceImpl bnMarketAPIService, String pair) {
-        try {
-            String time = utils.getDateTime();
+        String time = utils.getDateTime();
 
-            /*
-             * List.size() 可能为1, 也可能为3, 取决于pair是什么
-             */
-            List<BNMarketTradeResponse> result = bnMarketAPIService.getMarketTradeByPair(pair);
+        /*
+         * List.size() 可能为1, 也可能为3, 取决于pair是什么
+         */
+        List<BNMarketTradeResponse> result = bnMarketAPIService.getMarketTradeByPair(pair);
 
-            for (int i = 0; i < result.size(); i++) {
-                BNMarketTradeResponse marketObj = result.get(i);
+        for (int i = 0; i < result.size(); i++) {
+            BNMarketTradeResponse marketObj = result.get(i);
 
-                if (marketObj.getSymbol().equals(BNBUSD_PERP)) {
-                    insertLatestPriceTbl(BNBUSD_PERP_CONTRACT_TYPE, marketObj.getPrice(), time);
+            if (marketObj.getSymbol().equals(BNBUSD_PERP)) {
+                insertLatestPriceTbl(BNBUSD_PERP_CONTRACT_TYPE, marketObj.getPrice(), time);
 
-                    result.remove(i);
-                    i--;
-                }
+                result.remove(i);
+                i--;
             }
+        }
 
-            BNMarketTradeResponse marketObjA = result.get(0);
-            BNMarketTradeResponse marketObjB = result.get(1);
+        BNMarketTradeResponse marketObjA = result.get(0);
+        BNMarketTradeResponse marketObjB = result.get(1);
 
-            String strA = marketObjA.getSymbol().replace(BNBUSD + "_", "");
-            String strB = marketObjB.getSymbol().replace(BNBUSD + "_", "");
+        String strA = marketObjA.getSymbol().replace(BNBUSD + "_", "");
+        String strB = marketObjB.getSymbol().replace(BNBUSD + "_", "");
 
-            DateFormat df = new SimpleDateFormat("yyMMdd", Locale.ENGLISH);
-            Date dateA = df.parse(strA);
-            Date dateB = df.parse(strB);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
+        LocalDate dateA = LocalDate.parse(strA, formatter);
+        LocalDate dateB = LocalDate.parse(strB, formatter);
 
-            if (dateA.before(dateB)) {
-                insertLatestPriceTbl(BNBUSD_CONTRACT_TYPE, marketObjA.getPrice(), time);
-            } else {
-                insertLatestPriceTbl(BNBUSD_CONTRACT_TYPE, marketObjB.getPrice(), time);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (dateA.isBefore(dateB)) {
+            insertLatestPriceTbl(BNBUSD_CONTRACT_TYPE, marketObjA.getPrice(), time);
+        } else {
+            insertLatestPriceTbl(BNBUSD_CONTRACT_TYPE, marketObjB.getPrice(), time);
         }
     }
 
@@ -184,7 +182,7 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
                 stmt = conn.createStatement();
             }
 
-            String sql = String.format(insertBNBLatestPriceTbl, TBL_NAME, utils.get16UUID(), cons.BN, contractType, Double.parseDouble(price), time);
+            String sql = String.format(insertBNBLatestPriceTbl, TBL_NAME, utils.get24UUID(), cons.BN, contractType, Double.parseDouble(price), time);
             stmt.executeUpdate(sql);
 
             // 完成后关闭

@@ -147,7 +147,7 @@ public class BTCLatestPriceServiceImpl implements HBService {
                 stmt = conn.createStatement();
             }
 
-            String sql = String.format(insertBTCLatestPriceTbl, TBL_NAME, utils.get16UUID(), cons.HB, contractType, Double.parseDouble(price), time);
+            String sql = String.format(insertBTCLatestPriceTbl, TBL_NAME, utils.get24UUID(), cons.HB, contractType, Double.parseDouble(price), time);
             stmt.executeUpdate(sql);
 
             // 完成后关闭

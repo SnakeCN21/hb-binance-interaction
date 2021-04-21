@@ -76,7 +76,7 @@ public class BNBLatestPriceServiceImpl implements HBService {
                         LocalDateTime.now().getSecond());
 
                 if (utils.timeCompare(now, nextTimeReminder)) {
-                    logger.debug(String.format("HB.BTCLatestPriceServiceImpl 已运行 %s.", utils.getTimeDifference(now, this.startDT, timeReminder)));
+                    logger.debug(String.format("HB.BNBLatestPriceServiceImpl 已运行 %s.", utils.getTimeDifference(now, this.startDT, timeReminder)));
 
                     this.prevTimeReminder = now;
                     this.nextTimeReminder = utils.getNextTimeReminder(now, timeReminder);
@@ -137,7 +137,7 @@ public class BNBLatestPriceServiceImpl implements HBService {
                 stmt = conn.createStatement();
             }
 
-            String sql = String.format(insertBNBLatestPriceTbl, TBL_NAME, utils.get16UUID(), cons.HB, contractType, Double.parseDouble(price), time);
+            String sql = String.format(insertBNBLatestPriceTbl, TBL_NAME, utils.get24UUID(), cons.HB, contractType, Double.parseDouble(price), time);
             stmt.executeUpdate(sql);
 
             // 完成后关闭
