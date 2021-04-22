@@ -54,12 +54,19 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
     public void getLatestPrice(LocalDateTime startDT) {
         BNMarketAPIServiceImpl bnMarketAPIService = new BNMarketAPIServiceImpl();
 
-        timeReminder = utils.getPropValues("time_reminder");
-        sleep = utils.getPropValues("sleep");
-
         if (isFirstRun) {
             this.startDT = startDT;
             this.prevTimeReminder = startDT;
+
+            timeReminder = utils.checkTimeReminder(utils.getPropValues("time_reminder"));
+            sleep = utils.getPropValues("sleep");
+
+            if (sleep.isEmpty() || utils.integerVerification(sleep, "sleep")) {
+                logger.debug(String.format("sleep已重置为%s.", cons.DEFAULT_SLEEP));
+
+                sleep = cons.DEFAULT_SLEEP;
+            }
+
             isFirstRun = false;
         }
 
@@ -83,11 +90,6 @@ public class BNBNBLatestPriceServiceImpl implements BNService {
 
                     this.prevTimeReminder = now;
                     this.nextTimeReminder = utils.getNextTimeReminder(now, timeReminder);
-                }
-
-                // 默认设置为每1秒进行一次数据采集
-                if (sleep.isEmpty()) {
-                    sleep = cons.DEFAULT_SLEEP;
                 }
 
                 TimeUnit.SECONDS.sleep(Integer.parseInt(sleep));

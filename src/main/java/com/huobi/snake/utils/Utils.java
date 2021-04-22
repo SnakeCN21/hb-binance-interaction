@@ -44,10 +44,81 @@ public class Utils {
 
             value = prop.getProperty(key);
         } catch (Exception e) {
-            System.out.println("Exception: " + e);
+            logger.debug("解析config.properties文件错误: " + e);
         } finally {
             return value;
         }
+    }
+
+    /**
+     * 验证config.properties文件中的部分配置是否误设了小数形式
+     *
+     * @param amount - 需要验证的数值
+     * @param title  - 具体的参数项, 用于log记录
+     * @return true - 包含小数; false - 整数
+     */
+    public boolean integerVerification(String amount, String title) {
+        try {
+            int num = Integer.parseInt(amount);
+
+            if (num < 1) {
+                logger.debug(title + "不可小于1.");
+
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            logger.debug(title + "不可设为小数形式.");
+            e.printStackTrace();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 分割timeReminder, 组装成一个Map<String, String>返回
+     *
+     * @param timeReminder
+     * @return key1 - amount; key2 - unit
+     */
+    private Map<String, String> separateTimeReminder(String timeReminder) {
+        timeReminder = timeReminder.toLowerCase();
+
+        String amount = timeReminder.substring(0, timeReminder.length() - 1);
+        String unit = timeReminder.substring(timeReminder.length() - 1);
+
+        Map<String, String> result = new HashMap<String, String>();
+
+        result.put("amount", amount);
+        result.put("unit", unit);
+
+        return result;
+    }
+
+    /**
+     * 用于检查timeReminder是否小于最低阈值, yes - 重置为cons.MINIMUM_TIME_REMINDER
+     *
+     * @param timeReminder
+     * @return
+     */
+    public String checkTimeReminder(String timeReminder) {
+        String amount = this.separateTimeReminder(timeReminder).get("amount");
+        String unit = this.separateTimeReminder(timeReminder).get("unit");
+
+        if (this.integerVerification(amount, "time_reminder")) {
+            logger.debug(String.format("time_reminder已重置为%s.", cons.DEFAULT_TIME_REMINDER));
+
+            return cons.DEFAULT_TIME_REMINDER;
+        }
+
+        if (Integer.parseInt(amount) < Integer.parseInt(cons.MINIMUM_TIME_AMOUNT) && unit.equals(cons.MINIMUM_TIME_UNIT)) {
+            logger.debug(String.format("time_reminder小于最低阈值, 已重置为%s.", cons.MINIMUM_TIME_AMOUNT + cons.MINIMUM_TIME_UNIT));
+
+            return cons.MINIMUM_TIME_AMOUNT + cons.MINIMUM_TIME_UNIT;
+        }
+
+        return timeReminder;
     }
 
     /**
@@ -62,10 +133,8 @@ public class Utils {
             timeReminder = cons.DEFAULT_TIME_REMINDER;
         }
 
-        timeReminder = timeReminder.toLowerCase();
-
-        String amount = timeReminder.substring(0, timeReminder.length() - 1);
-        String unit = timeReminder.substring(timeReminder.length() - 1);
+        String amount = this.separateTimeReminder(timeReminder).get("amount");
+        String unit = this.separateTimeReminder(timeReminder).get("unit");
 
         if (unit.equals("s")) {
             return startDT.plusSeconds(Long.parseLong(amount));
@@ -80,18 +149,18 @@ public class Utils {
 
     /**
      * 传入两个LocalDateTime变量, 计算彼此之间的时间差, 如果相等则返回true, 否则false
-     * 由于精度问题，目前误差设置在2秒内
+     * 由于精度问题，目前误差设置在3000毫秒内
      *
-     * @param dt1 - LocalDateTime
-     * @param dt2 - LocalDateTime
-     * @return 相等为true, 否则false
+     * @param dt1 - LocalDateTime - 当前时间
+     * @param dt2 - LocalDateTime - 下一个时间节点
+     * @return true - 相等, else is false
      */
     public boolean timeCompare(LocalDateTime dt1, LocalDateTime dt2) {
         Duration duration = Duration.between(dt2, dt1);
 
-        long diff = duration.toMillis() / 1000;
+        long diff = duration.toMillis();
 
-        if (Math.abs(diff) < 2) {
+        if (diff >= 0 && diff < Integer.parseInt(cons.TIME_REMINDER_DEVIATION)) {
             return true;
         }
 
@@ -111,9 +180,7 @@ public class Utils {
             timeReminder = cons.DEFAULT_TIME_REMINDER;
         }
 
-        timeReminder = timeReminder.toLowerCase();
-
-        String unit = timeReminder.substring(timeReminder.length() - 1);
+        String unit = this.separateTimeReminder(timeReminder).get("unit");
 
         Duration duration = Duration.between(dt2, dt1);
 
