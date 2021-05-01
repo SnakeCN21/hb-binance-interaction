@@ -227,7 +227,7 @@ public class Utils {
 
     /**
      * 生成唯一的16位UUID
-     * 组成方式为 YYMMdd(6位) + hashCode(10位)
+     * 组成方式为 yyMMdd(6位) + hashCode(10位)
      */
     public String get16UUID() {
         // 1.中间6整数，标识日期
@@ -249,15 +249,19 @@ public class Utils {
         return uuid;
     }
 
+    /**
+     * 生成唯一的24位UUID
+     * 组成方式为 yyMMdd(6位) + 随机数字(18位)
+     */
     public String get24UUID() {
         // 1.中间6位整数，标识日期
         LocalDate now = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
         String date = now.format(formatter);
 
-        // 2.生成16位的数字随机数
-        String random = RandomStringUtils.randomNumeric(16);
-        //String random = RandomStringUtils.random(16, "abcdefgABCDEFG123456789");
+        // 2.生成18位的随机数字
+        String random = RandomStringUtils.randomNumeric(18);
+        //String random = RandomStringUtils.random(18, "abcdefgABCDEFG123456789");
 
         // 3.组装
         String uuid = date + random;
@@ -276,6 +280,11 @@ public class Utils {
         return sdfTime.format(cal.getTime());
     }
 
+    /**
+     * 返回BN系统服务器时间
+     *
+     * @return Date
+     */
     public Date getBNSystemTime() {
         String body;
 

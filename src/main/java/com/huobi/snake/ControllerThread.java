@@ -19,7 +19,7 @@ public class ControllerThread extends Thread {
     private static Constants cons = new Constants();
     private static Utils utils = new Utils();
 
-    public ControllerThread(TopService topService){
+    public ControllerThread(TopService topService) {
         this.topService = topService;
     }
 
