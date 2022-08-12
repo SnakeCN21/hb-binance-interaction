@@ -15,3 +15,11 @@ ALTER TABLE `bnb_latest_price_tbl`
 ALTER TABLE `btc_latest_price_tbl`
 	DROP INDEX `idx_price_time`,
 	ADD INDEX `idx_time_source_contract_type` (`time`, `source`, `contract_type`) USING BTREE;
+    
+ALTER TABLE `bnb_latest_price_tbl`
+	DROP INDEX `idx_time_source_contract_type`,
+	ADD INDEX `idx_time_source_contract_type_price` (`time`, `source`, `contract_type`, `price`) USING BTREE;
+    
+ALTER TABLE `btc_latest_price_tbl`
+	DROP INDEX `idx_time_source_contract_type`,
+	ADD INDEX `idx_time_source_contract_type_price` (`time`, `source`, `contract_type`, `price`) USING BTREE;

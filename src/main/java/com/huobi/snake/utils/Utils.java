@@ -314,6 +314,15 @@ public class Utils {
         //System.out.println(utils.get16UUID());
         //System.out.println(utils.get24UUID());
         //System.out.println(utils.getDateTime());
+
+        Map<String, String> map = new HashMap<>();
+
+        map.put("a", "aa");
+        map.put("b", "bb");
+        map.put("c", "cc");
+        map.put("d", "dd");
+
+        System.out.println(map.toString());
     }
 
 }
